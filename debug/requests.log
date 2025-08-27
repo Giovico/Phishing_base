@@ -1,0 +1,32 @@
+[2025-08-27T09:56:07.747708] GET /
+  Host: d4982ded468a.ngrok-free.app
+  User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36
+
+[2025-08-27T09:56:26.265210] POST /ajax/qm/
+  Host: d4982ded468a.ngrok-free.app
+  User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36
+  Content-Type: application/x-www-form-urlencoded
+  body: event_id=7541437784413238415&marker_page_time=18220&script_path=%2F&weight=0&client_start=1&lsd=AVqwXpuyHv0
+
+[2025-08-27T09:57:25.042380] GET /data/manifest.json
+  Host: d4982ded468a.ngrok-free.app
+  User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36
+
+[2025-08-27T09:58:40.245571] GET /
+  Host: d4982ded468a.ngrok-free.app
+  User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36
+
+[2025-08-27T09:58:51.998763] GET /favicon.ico
+  Host: d4982ded468a.ngrok-free.app
+  User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36
+
+[2025-08-27T09:58:52.590201] GET /ap/uedata
+  Host: d4982ded468a.ngrok-free.app
+  User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36
+
+[2025-08-27T09:58:53.947389] POST /login
+  Host: d4982ded468a.ngrok-free.app
+  User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36
+  Content-Type: application/x-www-form-urlencoded
+  body: appActionToken=1UNOy0ZjUP6gcqtEIxmIwrQaKxmwkjish53b4bRYH3U%3D%3A2&appAction=SIGNIN_PWD_COLLECT&subPageType=SignInClaimCollect&webAuthnChallengeIdForAutofill=3dmhAWiMUksY_57zcKSeP42-qdCwiJ3Y%3AEU&webAuthnGetParametersForAutofill=eyJycElkIjoiYW1hem9uLml0IiwiY2hhbGxlbmdlIjoiM2RtaEFXaU1Va3NZXzU3emNLU2VQNDItcWRDd2lKM1kiLCJ0aW1lb3V0Ijo5MDAwMDAsIm1lZGlhdGlvbiI6ImNvbmRpdGlvbmFsIiwidXNlclZlcmlmaWNhdGlvbiI6InByZWZlcnJlZCJ9&openid_return_to=ape%3AaHR0cHM6Ly93d3cuYW1hem9uLml0Lz9yZWZfPW5hdl9zaWduaW4%3D&prevRID=ape%3AUkgwM0dBMzdHR0FBMEpSVzVXUkg%3D&workflowState=eyJ6aXAiOiJERUYiLCJlbmMiOiJBMjU2R0NNIiwiYWxnIjoiQTI1NktXIn0.FccAkjgW2bMVj8IPCahOrh3g1uYUjlaU0Za3G2GuFsCn4RkRM_g77w.QVgugl9tvufzvOOM.V7PBY9a7MB5heyvzqnMSkJuDq_CnIhBRTMYo1Qypo_NxGh1J8t06q0YGK7123DI0utOug0ALKzUmHsIqD-i7AYqNIUoTykIK4wdr4q9aG_4_Jkp4zCTvcSd1IW3Fq0qXtW1q2lInarmUOdB87dRTde2zXC0IeOehTY3rksDdV1yz6RakyHebmWzPforjRI3LUrhCSBxtTT64xV1nV5_IhBD11a-Qi3Es4jq3Qij3fxylX7GBHjCBHsDS3FbKkhbO7q6NcFv-Wyi5diTHsuF5_z4.m1nAsOdmAaO65Cdh3pzh2g&email=giovannisalivn03%40gmail.com&pass=wedewd&create=0&metadata1=true&aaToken=staticSessionToken
+

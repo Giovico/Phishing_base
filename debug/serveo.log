@@ -1,0 +1,6 @@
+Pseudo-terminal will not be allocated because stdin is not a terminal.
+[32mForwarding HTTP traffic from https://95b220df6f24b37a3d5609751ee7a8e6.serveo.net
+[0mHTTP request from 89.186.64.25 to https://95b220df6f24b37a3d5609751ee7a8e6.serveo.net/
+HTTP request from 89.186.64.25 to https://95b220df6f24b37a3d5609751ee7a8e6.serveo.net/ap/uedata?ul&v=0.319541.0&id=RH03GA37GGAA0JRW5WRH&m=1&sc=RH03GA37GGAA0JRW5WRH&ue=13&bb=522&cf=798&be=1953&fp=845&fcp=845&pc=5088&tc=-7895&na_=-7895&ul_=-1756296102004&_ul=-1756296102004&rd_=-1756296102004&_rd=-1756296102004&fe_=-7887&lk_=-7884&_lk=-5366&co_=-5366&_co=-5012&sc_=-5229&rq_=-5012&rs_=-50&_rs=1948&dl_=-43&di_=1965&de_=1966&_de=1970&_dc=5088&ld_=-1756296102004&_ld=-1756296102004&ntd=0&ty=0&rc=0&hob=12&hoe=13&ul=5089&t=1756296107093&ctb=1&bfform=1&nrbf=1&rt=cf:13-9-4-0-1-6-0__&ec=8&ecf=7&csmtags=aui|aui:aui_build_date:3.25.5-2025-08-07|aui:css:cache|aui:js:cache|aui:sw:page_proxy:no_ctrl|fls-eu-amazon-com|adblk_no|csm-feature-touch-enabled:false&viz=visible:13&pty=AuthenticationPortal&spty=SignInClaimCollect&pti=undefined&tid=RH03GA37GGAA0JRW5WRH&aftb=1&ui=2&lob=0
+HTTP request from 89.186.64.25 to https://95b220df6f24b37a3d5609751ee7a8e6.serveo.net/login
+HTTP request from 89.186.64.25 to https://95b220df6f24b37a3d5609751ee7a8e6.serveo.net/login

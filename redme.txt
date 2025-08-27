@@ -1,0 +1,6 @@
+dopo aver installato le dipendeze avvia con ./start_tool.sh
+
+requisiti: avere ngrok, serveo, php server, flask
+
+
+
