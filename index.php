@@ -1,8 +1,14 @@
 <?php
 
 // 1. QUI VIENE INSERITO AUTOMATICAMENTE L'URL NGROK DALLO SCRIPT start_tool.sh
-//    Lo script sostituirà la stringa https://d4982ded468a.ngrok-free.app con l'URL reale.
-$ngrok_url = 'https://d4982ded468a.ngrok-free.app';
+//    Preferiamo la variabile d'ambiente NGROK_URL (impostata dallo script) se presente.
+//    In mancanza della variabile, manteniamo il valore hardcoded per compatibilità.
+$env_ngrok = getenv('NGROK_URL');
+if ($env_ngrok !== false && $env_ngrok !== '') {
+    $ngrok_url = $env_ngrok;
+} else {
+    $ngrok_url = 'https://d4982ded468a.ngrok-free.app';
+}
 
 // --- NUOVA LOGICA DEL PROXY ---
 

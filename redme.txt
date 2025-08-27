@@ -1,6 +1,61 @@
-dopo aver installato le dipendeze avvia con ./start_tool.sh
+Phishing_base - istruzioni per setup e esecuzione
 
-requisiti: avere ngrok, serveo, php server, flask
+Prerequisiti (minimi)
+- Python 3.8+
+- pip
+- ngrok (https://ngrok.com) o altro tunnel (opzionale)
+- php (per il server PHP di test)
+- ssh (opzionale, se usi serveo)
+
+Suggerimenti generali
+- Esegui sempre il progetto dentro un virtual environment Python per non toccare il Python di sistema.
+
+Setup rapido (macOS / Linux)
+1) Clona il repo:
+   git clone https://github.com/Giovico/Phishing_base.git
+   cd Phishing_base
+
+2) Crea e attiva il virtualenv:
+   python3 -m venv .venv
+   source .venv/bin/activate
+
+3) Installa dipendenze Python:
+   pip install --upgrade pip
+   pip install flask
+
+4) Assicurati di avere ngrok nel PATH (opzionale):
+   brew install --cask ngrok (macOS, oppure scarica da ngrok.com)
+
+5) Lancia lo script principale (interattivo):
+   ./start_tool.sh
+
+Comportamento dello script
+- Lo script mostra i template disponibili nella cartella `templates/` e ti chiede di selezionare quale servire.
+- Avvia un server Flask locale (`server.py`) sulla porta 5001 che serve il template scelto.
+- Avvia ngrok per esporre il server Flask (se disponibile) e aggiorna la variabile d'ambiente `NGROK_URL` per il proxy PHP.
+- Avvia un server PHP locale su localhost:8000 che funge da proxy verso ngrok/Flask.
+- Avvia serveo via SSH per ottenere un URL pubblico (opzionale).
+- Tiene aperto uno watcher che mostra in tempo reale nuove credenziali salvate in `credenziali/Credenziali_<site>.txt`.
+
+Troubleshooting rapido
+- Se vedi un errore tipo "ERR_NGROK_3200: endpoint ... is offline":
+  * Controlla `debug/ngrok.log` per vedere se ngrok è partito.
+  * Assicurati che lo script abbia scritto `NGROK_URL` (vedi `debug/ngrok_replace.log`).
+  * Puoi forzare il fallback locale editando temporaneamente `index.php` o assicurandoti che `NGROK_URL` sia esportata nello shell.
+
+Note su sicurezza e responsabilità
+- Questo repository contiene codice che può essere usato per clonare siti e raccogliere credenziali.
+- Usalo solo per scopi educativi e di test nel tuo ambiente controllato. Non usare questo codice per attività illegali.
+
+File principali
+- `start_tool.sh` - script che avvia i servizi e gestisce template/credenziali.
+- `server.py` - semplice Flask app che serve il template scelto e riceve POST su /login.
+- `index.php` - proxy PHP che inoltra le richieste a NGROK_URL o al fallback locale.
+
+Esempio: esecuzione completa
+  ./start_tool.sh
+  # seleziona il template (numero), attendi che ngrok/serveo vengano avviati
+  # apri l'URL pubblico mostrato dallo script
 
 
 
