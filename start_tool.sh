@@ -353,28 +353,45 @@ php -S localhost:8000 > "$DEBUG_DIR/php.log" 2>&1 &
 PIDS+=("$!")
 sleep 1
 
-# Avvia serveo (ssh -R)
-print_header "Avvio serveo (ssh -R 80:localhost:8000 serveo.net)"
-ssh -o StrictHostKeyChecking=no -R 80:localhost:8000 serveo.net > "$DEBUG_DIR/serveo.log" 2>&1 &
-PIDS+=("$!")
-
-# Estrai URL di serveo dal log
-SERVEO_URL=""
-for i in {1..20}; do
-  sleep 1
-  if grep -q "Forwarding HTTP traffic from" "$DEBUG_DIR/serveo.log" 2>/dev/null; then
-    SERVEO_URL=$(grep -Eo "https?://[a-zA-Z0-9.-]+\.serveo\.net" "$DEBUG_DIR/serveo.log" | head -n1 || true)
-  fi
-  if [ -n "$SERVEO_URL" ]; then
-    break
-  fi
-done
-
-if [ -n "$SERVEO_URL" ]; then
-  # Stampa la label in verde e reset del colore prima dell'URL
-  echo -e "${GREEN}Apri questo URL nel browser per trovare il sito:${NC} $SERVEO_URL"
+# Avvia tunnelto (se presente) per ottenere un link pubblico senza SSH/serveo
+print_header "Avvio tunnelto sulla porta 8000"
+TUNNELTO_CMD="tunnelto"
+if ! command -v "$TUNNELTO_CMD" >/dev/null 2>&1; then
+  echo "tunnelto non trovato nel PATH; salto la creazione del tunnel pubblico (usa ngrok o installa tunnelto)."
 else
-  echo "Non sono riuscito a estrarre l'URL di serveo automaticamente. Controlla $ROOT_DIR/serveo.log"
+  mkdir -p "$DEBUG_DIR"
+  # Supporta chiave d'accesso opzionale via variabile d'ambiente TUNNELTO_KEY
+  if [ -n "${TUNNELTO_KEY:-}" ]; then
+    $TUNNELTO_CMD --port 8000 --key "$TUNNELTO_KEY" > "$DEBUG_DIR/tunnelto.log" 2>&1 &
+  else
+    $TUNNELTO_CMD --port 8000 > "$DEBUG_DIR/tunnelto.log" 2>&1 &
+  fi
+  PIDS+=("$!")
+
+  # Estrai URL pubblico dal log (attende fino a ~20s)
+  TUNNELTO_URL=""
+  for i in {1..20}; do
+    sleep 1
+    if [ -f "$DEBUG_DIR/tunnelto.log" ]; then
+      # cerca il primo URL pubblico nel log
+      TUNNELTO_URL=$(grep -Eo "https?://[^[:space:]]+" "$DEBUG_DIR/tunnelto.log" | grep -E "tunn?\.dev|tunnelto|tunnelto\.dev|tunn\.dev" -m1 || true)
+      # fallback generico: prima occorrenza di https://
+      if [ -z "$TUNNELTO_URL" ]; then
+        TUNNELTO_URL=$(grep -Eo "https?://[^[:space:]]+" "$DEBUG_DIR/tunnelto.log" | head -n1 || true)
+      fi
+    fi
+    if [ -n "$TUNNELTO_URL" ]; then
+      break
+    fi
+  done
+
+  if [ -n "$TUNNELTO_URL" ]; then
+    echo -e "${GREEN}Apri questo URL pubblico nel browser:${NC} $TUNNELTO_URL"
+    # Esponi la variabile per eventuali altri componenti
+    export TUNNELTO_URL
+  else
+    echo "Non sono riuscito a estrarre l'URL di tunnelto automaticamente. Controlla $DEBUG_DIR/tunnelto.log"
+  fi
 fi
 
 # Trap per terminare i processi lanciati
